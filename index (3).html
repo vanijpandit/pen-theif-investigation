@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pen Stolen Form (PTIP)</title>
+<style>
+:root{
+  --bg:linear-gradient(135deg,#ffe3ec 0%,#e3f0ff 50%,#e6ffe9 100%);
+  --card:#ffffff;--text:#2b2140;--muted:#6e6188;--line:#e4dcf5;
+  --field:#faf7ff;--pink:#ff4f8b;--orange:#ff9f1c;--teal:#16c79a;--blue:#4d8dff;--purple:#8e5cff;
+  --accent:linear-gradient(90deg,#ff4f8b,#ff9f1c);--accent-text:#fff;
+  --ok:#16a34a;--err:#e11d48;color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:linear-gradient(135deg,#2a1530 0%,#14233d 50%,#12302a 100%);
+  --card:#1f1a2e;--text:#f5f0ff;--muted:#b8aed6;--line:#3a3158;--field:#2a2440;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:linear-gradient(135deg,#2a1530 0%,#14233d 50%,#12302a 100%);
+  --card:#1f1a2e;--text:#f5f0ff;--muted:#b8aed6;--line:#3a3158;--field:#2a2440;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:var(--bg);background-attachment:fixed;color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:env(safe-area-inset-top,0px) 16px env(safe-area-inset-bottom,0px)}
+.wrap{max-width:640px;margin:24px auto 40px}
+.topbar{display:flex;justify-content:flex-end;margin-bottom:8px}
+.hero{text-align:center;margin-bottom:8px}
+.hero .emoji{font-size:2.6rem;display:inline-block;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+h1{font-size:1.9rem;margin:6px 0 4px;background:var(--accent);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--muted);margin:0 0 4px;font-weight:500}
+.req-note{color:var(--muted);font-size:.85rem;margin:0 0 16px;text-align:center}
+.notice{background:linear-gradient(90deg,#fff1c7,#ffe0ef);color:#5b3b00;border:1px solid #ffd27a;padding:12px 16px;border-radius:14px;margin:16px 0;font-size:.95rem}
+:root[data-theme="dark"] .notice,:root:not([data-theme="light"]) .notice{}
+.progress{height:12px;background:var(--line);border-radius:999px;overflow:hidden;margin:18px 0 6px}
+.progress div{height:100%;width:0;background:linear-gradient(90deg,var(--pink),var(--orange),var(--teal));border-radius:999px;transition:width .4s}
+.steps{display:flex;justify-content:space-between;gap:6px;margin-bottom:16px}
+.chip{flex:1;text-align:center;font-size:.8rem;font-weight:600;padding:6px 4px;border-radius:999px;background:var(--field);color:var(--muted);border:1px solid var(--line)}
+.chip.on{color:#fff;border-color:transparent;background:linear-gradient(90deg,var(--purple),var(--blue))}
+.chip.done{color:#fff;border-color:transparent;background:linear-gradient(90deg,var(--teal),#34d399)}
+.card{background:var(--card);border:2px solid transparent;background-image:linear-gradient(var(--card),var(--card)),linear-gradient(135deg,var(--pink),var(--orange),var(--teal),var(--blue));background-origin:border-box;background-clip:padding-box,border-box;border-radius:18px;padding:24px;margin-bottom:16px;box-shadow:0 10px 30px rgba(142,92,255,.15)}
+.section{display:none}.section.active{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h2{font-size:1.2rem;margin:0 0 4px;color:var(--purple)}
+.hint{color:var(--muted);font-size:.9rem;margin:0 0 16px}
+.field{margin-bottom:18px}
+label.q{display:block;font-weight:600;margin-bottom:6px}
+.req{color:var(--pink)}
+input[type=text],input[type=date],input[type=time],textarea{width:100%;padding:12px 14px;border:2px solid var(--line);border-radius:12px;background:var(--field);color:var(--text);font:inherit;transition:border-color .2s}
+textarea{min-height:120px;resize:vertical}
+input:focus,textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px rgba(77,141,255,.2)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opts label{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:2px solid var(--line);border-radius:999px;cursor:pointer;background:var(--field);font-weight:500;transition:transform .15s}
+.opts label:hover{transform:translateY(-2px)}
+.opts label:has(input:checked){background:linear-gradient(90deg,var(--teal),var(--blue));color:#fff;border-color:transparent}
+.opts input{accent-color:var(--teal)}
+.scale{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}
+.scale label{position:relative;text-align:center;padding:10px 0;border:2px solid var(--line);border-radius:10px;cursor:pointer;background:var(--field);font-weight:700;transition:transform .15s}
+.scale label:hover{transform:scale(1.08)}
+.scale input{position:absolute;opacity:0;pointer-events:none}
+.scale label:nth-child(-n+3){color:var(--pink)}
+.scale label:nth-child(n+4):nth-child(-n+7){color:var(--orange)}
+.scale label:nth-child(n+8){color:var(--teal)}
+.scale label:has(input:checked){background:linear-gradient(135deg,var(--pink),var(--orange));color:#fff;border-color:transparent}
+.scale-ends{display:flex;justify-content:space-between;color:var(--muted);font-size:.8rem;margin-top:6px;font-weight:600}
+.error{color:var(--err);font-size:.85rem;margin-top:4px;display:none;font-weight:600}
+.invalid{border-color:var(--err)!important;box-shadow:0 0 0 4px rgba(225,29,72,.15)!important}
+.counter{font-size:.8rem;color:var(--muted);text-align:right;margin-top:4px}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:8px}
+button{font:inherit;border-radius:999px;padding:12px 24px;cursor:pointer;border:2px solid var(--line);background:var(--card);color:var(--text);font-weight:600;transition:transform .15s}
+button:hover:not(:disabled){transform:translateY(-2px)}
+button.primary{background:linear-gradient(90deg,var(--pink),var(--orange));color:#fff;border-color:transparent;box-shadow:0 6px 18px rgba(255,79,139,.35)}
+button:disabled{opacity:.4;cursor:default}
+.topbar button{padding:6px 14px;font-size:.85rem}
+.review dl{display:grid;grid-template-columns:minmax(120px,max-content) 1fr;gap:10px 16px;margin:0}
+.review dt{color:var(--purple);font-weight:600}
+.review dd{margin:0;word-break:break-word}
+.done{text-align:center;padding:20px 0}
+.done .tick{font-size:3rem;color:var(--ok);animation:bob 1.6s ease-in-out infinite}
+.ref{font-family:ui-monospace,Menlo,monospace;background:linear-gradient(90deg,#fff1c7,#d8fff0);color:#2b2140;padding:8px 16px;border-radius:999px;display:inline-block;margin-top:8px;font-weight:700}
+footer{text-align:center;color:var(--muted);font-size:.8rem;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar"><button type="button" id="themeBtn">Toggle theme</button></div>
+  <div class="hero">
+    <div class="emoji">🖊️🔍</div>
+    <h1>Pen Stolen Form (PTIP)</h1>
+    <p class="sub">Pen Theif Investigation Progam</p>
+  </div>
+  <p class="req-note"><span class="req">*</span> Indicates required question</p>
+  <div class="notice">📌 <strong>Note:</strong> Only Sanskriti School Wagholi V-E cases will be accepted.</div>
+
+  <div class="progress"><div id="bar"></div></div>
+  <div class="steps" id="steps">
+    <div class="chip on">1 Details</div>
+    <div class="chip">2 When</div>
+    <div class="chip">3 Pen</div>
+    <div class="chip">4 Review</div>
+  </div>
+
+  <form id="form" novalidate>
+
+    <!-- Step 1 -->
+    <section class="section active card" data-step="1">
+      <h2>🎒 Your details</h2>
+      <p class="hint">Please confirm your case is eligible before continuing.</p>
+      <div class="field">
+        <label class="q">Is your case from Sanskriti School Wagholi V-E? <span class="req">*</span></label>
+        <div class="opts">
+          <label><input type="radio" name="eligible" value="Yes"> Yes</label>
+          <label><input type="radio" name="eligible" value="No"> No</label>
+        </div>
+        <div class="error" id="eligibleErr">Please answer this question.</div>
+      </div>
+      <div class="field">
+        <label class="q" for="name">What is your name? <span class="req">*</span></label>
+        <input type="text" id="name" name="name" maxlength="100" autocomplete="name">
+        <div class="error">Please enter your name.</div>
+      </div>
+    </section>
+
+    <!-- Step 2 -->
+    <section class="section card" data-step="2">
+      <h2>📅 When and which pen</h2>
+      <p class="hint">Tell us when the pen was taken and which pen it was.</p>
+      <div class="field">
+        <label class="q" for="date">When was your pen stolen? <span class="req">*</span></label>
+        <input type="date" id="date" name="date">
+        <div class="error">Please choose a date.</div>
+      </div>
+      <div class="field">
+        <label class="q" for="time">Approximate time</label>
+        <input type="time" id="time" name="time">
+      </div>
+      <div class="field">
+        <label class="q" for="pen">Which pen was stolen? <span class="req">*</span></label>
+        <input type="text" id="pen" name="pen" maxlength="150">
+        <div class="error">Please tell us which pen was stolen.</div>
+      </div>
+    </section>
+
+    <!-- Step 3 -->
+    <section class="section card" data-step="3">
+      <h2>✏️ Pen details and suspect</h2>
+      <p class="hint">Share only what you have observed. Please do not accuse anyone without evidence.</p>
+      <div class="field">
+        <label class="q" for="info">Info About Your Pen <span class="req">*</span></label>
+        <textarea id="info" name="info" maxlength="600" placeholder="Colour, brand, markings, stickers, size, anything that identifies it"></textarea>
+        <div class="counter"><span id="infoCount">0</span>/600</div>
+        <div class="error">Please describe your pen.</div>
+      </div>
+      <div class="field">
+        <label class="q" for="suspect">Whom do YOU think can be the suspect? <span class="req">*</span></label>
+        <textarea id="suspect" name="suspect" maxlength="300"></textarea>
+        <div class="counter"><span id="suspectCount">0</span>/300</div>
+        <div class="error">Please answer this question.</div>
+      </div>
+    </section>
+
+    <!-- Step 4 -->
+    <section class="section card" data-step="4">
+      <h2>⭐ How was our service?</h2>
+      <p class="hint">Rate from 1 (poor) to 10 (excellent). Optional.</p>
+      <div class="field">
+        <div class="scale" role="radiogroup" aria-label="Service rating"></div>
+        <div class="scale-ends"><span>1 Poor</span><span>10 Excellent</span></div>
+      </div>
+      <div class="review" id="review" style="margin-top:24px"></div>
+    </section>
+
+    <!-- Done -->
+    <section class="section card" id="done">
+      <div class="done">
+        <div class="tick">🎉</div>
+        <h2>Response submitted</h2>
+        <p class="hint">Thank you. Keep this reference number for follow-up.</p>
+        <div class="ref" id="ref"></div>
+        <p style="margin-top:20px"><button type="button" class="primary" id="again">Submit another response</button></p>
+      </div>
+    </section>
+
+    <div class="nav" id="nav">
+      <button type="button" id="back" disabled>← Back</button>
+      <button type="button" class="primary" id="next">Next →</button>
+    </div>
+  </form>
+  <footer>PTIP · Pen Theft Investigation Program</footer>
+</div>
+
+<script>
+(function(){
+  const TOTAL = 4;
+  let step = 1;
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+  const form = $('#form');
+
+  $('.scale').innerHTML = Array.from({length: 10}, (_, i) =>
+    `<label><input type="radio" name="service" value="${i+1}">${i+1}</label>`).join('');
+
+  $('#themeBtn').addEventListener('click', () => {
+    const root = document.documentElement;
+    const dark = root.getAttribute('data-theme') === 'dark' ||
+      (!root.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
+    root.setAttribute('data-theme', dark ? 'light' : 'dark');
+  });
+
+  $('#info').addEventListener('input', e => $('#infoCount').textContent = e.target.value.length);
+  $('#suspect').addEventListener('input', e => $('#suspectCount').textContent = e.target.value.length);
+
+  function clearErrors(root){
+    root.querySelectorAll('.error').forEach(el => el.style.display = 'none');
+    root.querySelectorAll('.invalid').forEach(el => el.classList.remove('invalid'));
+  }
+  function fail(input){
+    input.classList.add('invalid');
+    const err = input.closest('.field')?.querySelector('.error');
+    if (err) err.style.display = 'block';
+    return false;
+  }
+  function validateStep(n){
+    const sec = document.querySelector(`.section[data-step="${n}"]`);
+    clearErrors(sec);
+    let ok = true, first = null;
+    const check = (el, pass) => { if (!pass){ ok = false; fail(el); first = first || el; } };
+
+    if (n === 1){
+      const eligible = $('input[name=eligible]:checked');
+      if (!eligible || eligible.value !== 'Yes'){
+        ok = false;
+        $('#eligibleErr').style.display = 'block';
+        $('#eligibleErr').textContent = eligible && eligible.value === 'No'
+          ? 'Only Sanskriti School Wagholi V-E cases will be accepted.'
+          : 'Please answer this question.';
+        first = first || $('input[name=eligible]');
+      }
+      check($('#name'), $('#name').value.trim().length > 0);
+    }
+    if (n === 2){
+      check($('#date'), $('#date').value);
+      check($('#pen'), $('#pen').value.trim().length > 0);
+    }
+    if (n === 3){
+      check($('#info'), $('#info').value.trim().length > 0);
+      check($('#suspect'), $('#suspect').value.trim().length > 0);
+    }
+    if (first && first.focus) first.focus();
+    return ok;
+  }
+
+  function renderReview(){
+    const v = name => (form.elements[name]?.value || '').trim();
+    const rating = $('input[name=service]:checked')?.value || '';
+    const rows = [
+      ['Name', v('name')],
+      ['Date', v('date')],
+      ['Time', v('time')],
+      ['Pen stolen', v('pen')],
+      ['Pen info', v('info')],
+      ['Suspect', v('suspect')],
+      ['Service rating', rating ? rating + ' / 10' : '']
+    ].filter(([_, x]) => x);
+    $('#review').innerHTML = '<h2 style="margin-bottom:10px">📝 Review your answers</h2><dl>' +
+      rows.map(([k, x]) => `<dt>${k}</dt><dd>${esc(x)}</dd>`).join('') + '</dl>';
+  }
+  function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  function show(n){
+    step = n;
+    $$('.section[data-step]').forEach(s => s.classList.toggle('active', +s.dataset.step === n));
+    $$('#steps .chip').forEach((c, i) => {
+      c.classList.toggle('on', i + 1 === n);
+      c.classList.toggle('done', i + 1 < n);
+    });
+    $('#bar').style.width = ((n - 1) / (TOTAL - 1) * 100) + '%';
+    $('#back').disabled = n === 1;
+    $('#next').textContent = n === TOTAL ? 'Submit 🚀' : 'Next →';
+    if (n === TOTAL) renderReview();
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+
+  $('#next').addEventListener('click', () => {
+    if (!validateStep(step)) return;
+    if (step < TOTAL){ show(step + 1); return; }
+    const ref = 'PTIP-' + new Date().getFullYear() + '-' + Math.random().toString(36).slice(2, 7).toUpperCase();
+    $('#ref').textContent = ref;
+    $$('.section[data-step]').forEach(s => s.classList.remove('active'));
+    $('#done').classList.add('active');
+    $('#nav').style.display = 'none';
+    $('#steps').style.display = 'none';
+    $('#bar').style.width = '100%';
+  });
+
+  $('#back').addEventListener('click', () => { if (step > 1) show(step - 1); });
+
+  $('#again').addEventListener('click', () => {
+    form.reset();
+    $('#infoCount').textContent = '0';
+    $('#suspectCount').textContent = '0';
+    $$('.invalid').forEach(el => el.classList.remove('invalid'));
+    $('#nav').style.display = 'flex';
+    $('#steps').style.display = 'flex';
+    $('#done').classList.remove('active');
+    show(1);
+  });
+
+  show(1);
+})();
+</script>
+</body>
+</html>
